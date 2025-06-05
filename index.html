@@ -1,0 +1,131 @@
+<div class="container">
+<input id="name" placeholder="Enter a name!" autocomplete=off maxlength="15">
+<button onclick="go()">Go!</button>
+<fieldset>
+  <div id="choose">
+    
+    <input type="radio" id="female" name="drone" value="huey"  checked />
+    <label for="female">Female</label>
+    <input type="radio" id="male" name="drone" value="dewey" />
+    <label for="male">Male</label>
+
+  </div>
+</fieldset>
+<hr class="hr">
+<div id="names"></div>
+<script>
+
+f=[]
+m=[]
+
+async function fetchCSV() {
+      try {
+        // Fetch the CSV file
+        const response = await fetch('babynames.csv')
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // Get the text content of the file
+        const csvText = await response.text();
+
+        // Parse the CSV content
+        const rows = csvText.split('\n').map(row => row.split(','));
+        rows.forEach(row => {
+          if (row[0]=="F"){
+          f.push(row[1])
+          }
+          else if (row[1]!="Name"){
+            m.push(row[1])
+          }
+        });
+        m=m.slice(0,-1)
+      } catch (error) {
+        console.error('Error fetching or parsing the CSV file:', error);
+      }
+    }
+fetchCSV()
+
+
+bests=[]
+name=name.toLowerCase()
+function syls(l){
+return Math.max(1,l.split(/([^AEIOUaeiou])/).filter(vowel).length)
+}
+function vowel(b){
+tot=0
+for (a in b){
+tot+= ("AEIOUaeiou".split('').includes(b[a]))}
+return tot/b.length && tot/b.length
+}
+
+function letdif(a,b){
+score=0
+for (l=0;l<Math.min(a.length,b.length);l++){
+score+=(a[l]!=b[l])/(l+1.25)
+}
+for (l=Math.min(a.length,b.length);l<Math.max(a.length,b.length);l++){
+score+=1/(l+1.25)
+}
+return score
+}
+
+function diff(a,b){
+return Math.abs(syls(a)-syls(b))+letdif(a,b)+(a.slice(-1)!=b.slice(-1))/2+b.includes(a)*-1+a.includes(b)*-1
+
+}
+
+function go(){
+  start=new Date()*1
+  names=m
+  if (document.getElementById("female").checked==true){
+    names=f
+  }
+name=document.getElementById("name").value
+podium=[]
+for (k=0;k<names.length;k++){
+ans=diff(name,names[k].toLowerCase())
+if (ans<2.8){
+podium.push([names[k],Math.min(100,Math.round(((ans-1)*-30+90)*10)/10)])
+}}
+
+podium=podium.sort((a, b) => b[1] - a[1]).slice(0,10)
+podium[0]="<div class=first>"+podium[0]+"<p>Popularity Rank: "+(names.indexOf(podium[0][0])+1)+"</p></div>"
+podium[1]="<div class=second>"+podium[1]+"<p>Popularity Rank: "+(1+names.indexOf(podium[1][0]))+"</p></div>"
+podium[2]="<div class=third>"+podium[2]+"<p>Popularity Rank: "+(1+names.indexOf(podium[2][0]))+"</p></div>"
+for (u=3;u<10;u++){
+  podium[u]="<div>"+podium[u]+"<p>Popularity Rank: "+(names.indexOf(podium[u][0])+1)+"</p></div>"
+}
+document.getElementById("names").innerHTML="For "+name[0].toUpperCase()+name.slice(1)+":<hr>"+podium.join("<br>").split(",").join(" with a score of ")
+console.log(new Date()*1-start+" mills")
+}
+
+document.addEventListener('keydown', logKey);
+    function logKey(e) {
+      if (e.keyCode==13) {
+        go()
+}
+    }
+
+</script>
+
+<style>
+html{background-color:#CFCFCF; border: dashed 5px;font-family:'Lucida Sans'}
+div{margin-bottom:-30px;}
+.container{text-align:center;}
+legend{font-size: 20px;}
+#choose, #names{margin-bottom:30px;font-size: 30px;}
+#names{margin-bottom:60px;}
+#choose{font-size: 20px;}
+hr{width: 100px; color:#000}
+.hr{width: 600px; color:#000;border: dashed 1px;}
+input{font-family:'Lucida Sans'; font-size:20px;height:30px;}
+button{height:30px;border:0px;border-radius:3px;background: rgb(222,222,222);transition: 0.3s;}
+button:hover{height:30px;border:0px;border-radius:3px;background: rgb(236, 154, 154);}
+
+.first{background-color:#d5b500;height:70px;border-radius:15px;}
+.second{background-color:#b0b0b0;height:70px;border-radius:15px;}
+.third{background-color:#a17419;height:70px;border-radius:15px;}
+p{font-size: 20px;margin-top:0px;}
+fieldset{border: none;margin-bottom: -20px;}
+</style>
