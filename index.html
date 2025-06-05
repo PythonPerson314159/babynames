@@ -1,3 +1,4 @@
+<title>709 Is Weird</title>
 <div class="container">
 <input id="name" placeholder="Enter a name!" autocomplete=off maxlength="15">
 <button onclick="go()">Go!</button>
@@ -84,10 +85,14 @@ function go(){
 name=document.getElementById("name").value
 podium=[]
 for (k=0;k<names.length;k++){
+  if (name.toLowerCase()==names[k].toLowerCase()){
+    podium.push([names[k],Infinity])
+  }
+  else{
 ans=diff(name,names[k].toLowerCase())
 if (ans<2.8){
 podium.push([names[k],Math.min(100,Math.round(((ans-1)*-30+90)*10)/10)])
-}}
+}}}
 
 podium=podium.sort((a, b) => b[1] - a[1]).slice(0,10)
 podium[0]="<div class=first>"+podium[0]+"<p>Popularity Rank: "+(names.indexOf(podium[0][0])+1)+"</p></div>"
